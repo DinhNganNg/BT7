@@ -1,50 +1,29 @@
 import streamlit as st
-import pandas as pd
-import io
+from PIL import Image
+import pickle as pkl
+import numpy as np
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+st.title('USA college admission rate prediction')
 
-st.title("Data exploration 📊")
+image = Image.open('rate.jpg')
+st.image(image)
 
-st.header("Upload data file")
-data_file = st.file_uploader('Choose a csv file', type=(['.csv']))
+input = open('lr_admit.pkl', 'rb')
+model = pkl.load(input)
 
-if data_file is not None:
-  df = pd.read_csv(data_file)
-  st.header("Show data")
-  st.dataframe(df)
+st.header('Input admission information')
+gre = st.number_input('Insert GRE Score')
+toefl = st.number_input('Insert TOEFL Score')
+uni_rate = st.number_input('Insert University Rating')
+sop = st.number_input('Insert SOP')
+lor = st.number_input('Insert LOR')
+cgpa = st.number_input('Insert CGPA')
+research = st.radio('Choose Research', [0, 1], index=None)
 
-  st.header("Descriptive statistics")
-  st.table(df.describe())
+if gre is not None and toefl is not None and uni_rate is not None and sop is not None and lor is not None and cgpa is not None and research is not None:
+    if st.button('Predict'):
+        feature_vector = np.array([gre, toefl, uni_rate, sop, lor, cgpa, research]).reshape(1,-1)
+        result = str((model.predict(feature_vector)[0])[0])
 
-  st.header('Show data infomation')
-
-  buffer = io.StringIO()
-  df.info(buf=buffer)
-  st.text(buffer.getvalue())
-
-  st.header('Visualize each attribute')
-  for col in list(df.columns):
-    fig, ax = plt.subplots()
-    ax.hist(df[col], bins = 20)
-    plt.xlabel(col)
-    plt.ylabel('Quanlity')
-    st.pyplot(fig)
-
-  st.header('Show correlation between variable')
-  fig, ax = plt.subplots()
-  sns.heatmap(df.corr(method='pearson'), ax=ax, vmax=1, square=True, annot=True, cmap='Purples')
-  st.write(fig)
-  
-  st.header('Show relationship between variable')
-  output = st.radio('Choose a dependent variable', df.columns)
-  for col in list(df.columns):
-    if col!=output:
-      fig, ax = plt.subplots()
-      ax.scatter(x=df[col], y=df[output])
-      plt.xlabel(col)
-      plt.ylabel(output)
-      st.pyplot(fig)
-
-
+        st.header('Result')
+        st.text(result)
