@@ -3,7 +3,7 @@ from PIL import Image
 import pickle as pkl
 import numpy as np
 
-st.title('USA college admission rate prediction')
+st.title('USA college admission rate prediction 🧑‍🏫')
 
 image = Image.open('rate.jpg')
 st.image(image)
